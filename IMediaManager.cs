@@ -9,11 +9,11 @@ namespace ConsoleApp7
     interface IMediaManager<T> where T : Media
     {
         public void Add(T item);
-        public bool Remove(T item);
+        public bool Remove(string item);
         public T FindByTitle(string title);
         public IEnumerable<T> FilterByYear(int year);
         public IEnumerable<T> GetAllAvailable();
 
-        public List<T> List { get; set; }
+
     }
 }

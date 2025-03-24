@@ -10,10 +10,11 @@
             Media med3 = new Media("zxc", "s", 2002, true);
 
             lib.Add(med1);
+            lib.FindByTitle(med1.Title);
             lib.Add(med2);
-            lib.Remove(med2);
-            lib.Remove(med3);
-            lib.Print();
+            lib.Remove(med2.Title);
+            //lib.Remove(med3.Title);
+            lib.PrintAll();
         }
     }
 }

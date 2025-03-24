@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,37 +10,54 @@ namespace ConsoleApp7
 {
     public class Library<T> : IMediaManager<T> where T : Media
     {
-        public List<T> List { get; set; }
-       
-        public Library()
-        {
-           List = new List<T>();
-        }   
+        private List<T> List = new List<T>();
+        private Dictionary<string, T> Dictionary = new Dictionary<string, T>();
+
 
         public void Add(T item)
         {
-            if (List.Any(x => x.Title.Equals(item.Title, StringComparison.OrdinalIgnoreCase)))
+            try
             {
-                throw new InvalidOperationException("Элемент с таким названием уже существует");
-                
-            }
-            List.Add(item);
-        }
-        public bool Remove(T item)
-        {
-            if (!List.Any(x => x.Title.Equals(item.Title, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new InvalidOperationException("Элемент с таким названием не существует");
+                if (Dictionary.ContainsKey(item.Title))
+                {
+                    throw new InvalidOperationException("Элемент с таким названием уже существует");
 
+                }
+                List.Add(item);
+                Dictionary.Add(item.Title, item);
             }
-            if (List.Remove(item)) return true;
-            return false;
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+            
+        }
+        public bool Remove(string title)
+        {
+            try
+            {
+                if ((!Dictionary.ContainsKey(title)))
+                {
+                    throw new InvalidOperationException("Элемент с таким названием не существует");
+
+                }
+                var item = Dictionary[title];
+                if (List.Remove(item) && Dictionary.Remove(title)) return true;
+                return false;
+            }
+            catch (KeyNotFoundException ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+            
         }
         public IEnumerable<T> FilterByYear(int year)
         {
             return List.Where(x => x.YearPublished > year);
         }
-        public void Print()
+        public void PrintAll()
         {
             foreach (var item in List)
             {
@@ -49,19 +67,56 @@ namespace ConsoleApp7
 
         public T FindByTitle(string title)
         {
-            if (!List.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase)))
+            try
             {
-                throw new InvalidOperationException("Элемент с таким названием не существует");
-
+                if (Dictionary.ContainsKey(title))
+                {
+                    return Dictionary[title];
+                }
+                throw new KeyNotFoundException($"Элемент с названием '{title}' не найден.");
             }
-            return List.FirstOrDefault(x => x.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
-        }
+            catch (KeyNotFoundException ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
 
+        }
         public IEnumerable<T> GetAllAvailable()
         {
-           return List.Where(x => x.IsAvailable == true);
+           return List.Where(x => x.IsAvailable);
         }
-
-       
+        public void CheckOut(string title)
+        {
+            var item = FindByTitle(title);
+            if (item != null)
+            {
+                if (item.IsAvailable)
+                {
+                    item.IsAvailable = false;
+                    Console.WriteLine($"{item.Title} успешно выдан.");
+                }
+                else
+                {
+                    Console.WriteLine($"{item.Title} уже выдан и недоступен.");
+                }
+            }
+        }
+        public void Return(string title)
+        {
+            var item = FindByTitle(title);
+            if (item != null)
+            {
+                if (!item.IsAvailable)
+                {
+                    item.IsAvailable = true;
+                    Console.WriteLine($"{item.Title} успешно возвращен.");
+                }
+                else
+                {
+                    Console.WriteLine($"{item.Title} уже доступен в библиотеке.");
+                }
+            }
+        }
     }
 }
