@@ -4,16 +4,14 @@
     {
         static void Main(string[] args)
         {
-            Library<Media> lib = new Library<Media>();
-            Media med1 = new Media("asdafs", "adasd", 2001, true);
-            Media med2 = new Media("as", "xc", 2003, true);
-            Media med3 = new Media("zxc", "s", 2002, true);
+            Library<Book> lib = new Library<Book>();
+            Book book1 = new Book("asdafs", "adasd", 2001, true, 4, "sa");
+            
+            s
+            lib.Add(book1);
+            lib.SortByDurationMin();   
 
-            lib.Add(med1);
-            lib.FindByTitle(med1.Title);
-            lib.Add(med2);
-            lib.Remove(med2.Title);
-            //lib.Remove(med3.Title);
+
             lib.PrintAll();
         }
     }
